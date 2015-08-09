@@ -17,14 +17,13 @@ import com.google.code.rome.android.repackaged.com.sun.syndication.io.FeedExcept
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "SJToday";
 
-    private ATOMParser mAtomParser = ATOMParser.getInstance();
+    final private ATOMParser mAtomParser = ATOMParser.getInstance();
 
     private TextView mEventList_tv;
 
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             if (mEventList_tv == null) {
                 Log.e(TAG, "ERROR TV NULL!");
             }
-            mEventList_tv.setText((CharSequence) "");
+            mEventList_tv.setText("");
             // set a non-cancellable indeterminate progress dialog
             mProgressDialog = ProgressDialog.show(MainActivity.this, "Please wait...",
                     "Fetching latest events", true, false);
@@ -60,11 +59,7 @@ public class MainActivity extends AppCompatActivity {
         protected SyndFeed doInBackground(String... params) {
             try {
                 return retrieveFeed(params[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (FetcherException e) {
-                e.printStackTrace();
-            } catch (FeedException e) {
+            } catch (IOException | FetcherException | FeedException e) {
                 e.printStackTrace();
             }
             return null;
@@ -72,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
         /**
          * Function that actually retrieves the feed from the given URL
-         * @param feedURL
-         * @return
+         * @param feedURL the URL of the feed that needs to be downloaded
+         * @return SyndFeed returns the ROME representation of the feed
          * @throws IOException
          * @throws FetcherException
          * @throws FeedException
@@ -94,18 +89,15 @@ public class MainActivity extends AppCompatActivity {
             try {
                 List<SJTodayEvent> eventList = mAtomParser.processFeed(syndFeed);
                 Log.e(TAG, "Total Number of events downloaded = " + eventList.size());
-                Iterator<SJTodayEvent> eventIterator = eventList.iterator();
-                while(eventIterator.hasNext()) {
+                for (SJTodayEvent anEventList : eventList) {
 
-                    StringBuffer buffer = new StringBuffer();
-                    buffer.append(mEventList_tv.getText());
-                    buffer.append(eventIterator.next().toString());
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(mEventList_tv.getText());
+                    sb.append(anEventList.toString());
 
-                    mEventList_tv.setText((CharSequence) buffer.toString());
-
+                    mEventList_tv.setText(sb.toString());
+                    Log.e(TAG, anEventList.toString());
                 }
-            } catch (FeedException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
